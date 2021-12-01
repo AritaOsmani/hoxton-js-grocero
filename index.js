@@ -108,7 +108,11 @@ function addItemToBasket(product){
       calculateTotal(product.price);
 
 }
-
+function removeItemFromBasket(id){
+    state.basket = state.basket.filter(function(item){
+        return item.id != id;
+    })
+}
 
 function increaseQuantity(item){
     item.quantity++;
@@ -149,17 +153,18 @@ function createStoreItems(product){
     container.setAttribute('class','store--item-icon');
 
     const imageEl = document.createElement('img');
-    // imageEl.setAttribute('src',`assets/icons/${id}-beetroot.svg`);
     imageEl.setAttribute('src',`assets/icons/${product.id}-${product.name}.svg`);
     imageEl.setAttribute('alt',product.name);
 
     const buttonEl = document.createElement('button');
     buttonEl.textContent = 'Add to cart';
-    buttonEl.addEventListener('click',function(){
-        addItemToBasket(product);
-        renderCartItems();
+
+    // buttonEl.addEventListener('click',function(){
+    //     addItemToBasket(product);
+    //     renderCartItems();
        
-    })
+    // })
+    addButtonListener(buttonEl,product);
 
     container.append(imageEl,buttonEl);
 
@@ -181,6 +186,11 @@ function createCartItems(product){
     removeButton.setAttribute('class','quantity-btn.remove-btn center');
     removeButton.textContent = '-';
 
+    removeButton.addEventListener('click',function(){
+        decreaseQuantity(product);
+        renderCartItems();
+    })
+
     const spanEl = document.createElement('span');
     spanEl.setAttribute('class','quantity-text.center');
     spanEl.textContent = product.quantity;
@@ -188,10 +198,23 @@ function createCartItems(product){
     const addButton = document.createElement('button');
     addButton.setAttribute('class','quantity-btn.add-btn.center');
     addButton.textContent = '+';
+
+    addButton.addEventListener('click',function(){
+        // addItemToBasket(product);
+        increaseQuantity(product)
+        renderCartItems();
+    })
     
     listItem.append(imageEl,itemName,removeButton,spanEl,addButton);
     return listItem;
    
 }
+
+function addButtonListener(button,product){
+    button.addEventListener('click',function(){
+        addItemToBasket(product);
+        renderCartItems();
+       
+    })
+}
 render();
-// createCartItems(state.availableProducts[0]);
