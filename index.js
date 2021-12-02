@@ -1,28 +1,8 @@
-/*
-
-This is how an item object should look like
-
-{
-  id: 1, // <- the item id matches the icon name in the assets/icons folder
-  name: "beetroot",
-  price: 0.35 // <- You can come up with your own prices
-}
-
-*/
-// - A user can view a selection of items in the store
-// - From the store, a user can add an item to their cart
-// - From the cart, a user can view and adjust the number of items in their cart
-// - If an item's quantity equals zero it is removed from the cart
-// - A user can view the current total in their cart
 
 const state = {
-//     - What products are available for purchase?
-//      - What products are in my basket?
-//         Current total
-
     availableProducts: [
         {
-            id:'001',
+            id: '001',
             name: 'beetroot',
             price: 0.35,
             quantity: 3
@@ -84,160 +64,178 @@ const state = {
     ],
     basket: [],
 
-    currentTotal:0
+
 }
 const listElementContainer = document.querySelector('.item-list.cart--item-list');
+const listContainer = document.querySelector('.item-list.store--item-list');
 
-function addItemToBasket(product){
+function addItemToBasket(product) {
+    if (product.quantity === 0) {
+        return;
+    }
     const item = {
         id: product.id,
-        name:product.name ,
-        quantity:1
+        name: product.name,
+        quantity: 1
     }
 
     const index = state.basket.findIndex(function (name) {
         return (name.name === product.name);
-      });
-      if(index ===-1){
-        //   console.log('entered')
+    });
+    if (index === -1) {
         state.basket.push(item);
-      }else{
+    } else {
         increaseQuantity(state.basket[index])
-          
-      }
-      decreaseQuantity(product);
-      calculateTotal(product.price);
+
+    }
+    decreaseQuantity(product);
+
 
 }
-function removeItemFromBasket(product){
-    state.basket = state.basket.filter(function(item){
+function removeItemFromBasket(product) {
+    state.basket = state.basket.filter(function (item) {
         return item.id != product.id;
     })
-    calculateTotal(product.price);
 }
 
-function increaseQuantity(item){
+function increaseQuantity(item) {
     item.quantity++;
 }
-function decreaseQuantity(item){
+function decreaseQuantity(item) {
     item.quantity--;
 }
-function calculateTotal(price){
+function calculateTotal(price) {
     state.currentTotal += price;
 }
 
-function render(){
+// function calculateTotal(product){
+//     const price = product.quantity * product.price;
+//     state.currentTotal += price;
+// }
+function render() {
     renderStoreItems();
     renderCartItems();
     renderTotal();
 }
-function renderStoreItems(){
-    for(const product of state.availableProducts){
+function renderStoreItems() {
+    listContainer.innerHTML = '';
+    for (const product of state.availableProducts) {
         createStoreItems(product);
     }
 }
 
 
-function renderCartItems(){
-    listElementContainer.innerHTML='';
-    for(const product of state.basket){
-       
-      const listItem = createCartItems(product);
+function renderCartItems() {
+    listElementContainer.innerHTML = '';
+    for (const product of state.basket) {
+
+        const listItem = createCartItems(product);
         listElementContainer.append(listItem);
     }
 }
-function renderTotal(){
+function renderTotal() {
+
     const spanEl = document.querySelector('.total-number');
     // spanEl.innerHTML = '';
-    spanEl.textContent = state.currentTotal;
+    spanEl.textContent = '£' + getTotal().toFixed(2);
 }
-function createStoreItems(product){
-    const listContainer = document.querySelector('.item-list.store--item-list');
-  
+function createStoreItems(product) {
+
+
     const listItem = document.createElement('li');
 
     const container = document.createElement('div');
-    container.setAttribute('class','store--item-icon');
+    container.setAttribute('class', 'store--item-icon');
 
     const imageEl = document.createElement('img');
-    imageEl.setAttribute('src',`assets/icons/${product.id}-${product.name}.svg`);
-    imageEl.setAttribute('alt',product.name);
+    imageEl.setAttribute('src', `assets/icons/${product.id}-${product.name}.svg`);
+    imageEl.setAttribute('alt', product.name);
 
     const buttonEl = document.createElement('button');
     buttonEl.textContent = 'Add to cart';
 
-    // buttonEl.addEventListener('click',function(){
-    //     addItemToBasket(product);
-    //     renderCartItems();
-       
-    // })
-    addButtonListener(buttonEl,product);
+    addButtonListener(buttonEl, product);
 
-    container.append(imageEl,buttonEl);
+    container.append(imageEl, buttonEl);
 
     listItem.append(container);
     listContainer.append(listItem);
 }
-function createCartItems(product){
+function createCartItems(product) {
     const listItem = document.createElement('li');
 
     const imageEl = document.createElement('img');
-    imageEl.setAttribute('class','cart--item-icon');
-    imageEl.setAttribute('src',`assets/icons/${product.id}-${product.name}.svg`);
-    imageEl.setAttribute('alt',product.name);
+    imageEl.setAttribute('class', 'cart--item-icon');
+    imageEl.setAttribute('src', `assets/icons/${product.id}-${product.name}.svg`);
+    imageEl.setAttribute('alt', product.name);
 
     const itemName = document.createElement('p');
     itemName.textContent = product.name;
 
     const removeButton = document.createElement('button');
-    removeButton.setAttribute('class','quantity-btn.remove-btn center');
+    removeButton.setAttribute('class', 'quantity-btn.remove-btn center');
     removeButton.textContent = '-';
 
-    removeButton.addEventListener('click',function(){
+    removeButton.addEventListener('click', function () {
         decreaseQuantity(product);
-        // calculateTotal(product.price);
-        renderCartItems();
-        // renderTotal();
-        if(product.quantity === 0){
+
+        if (product.quantity === 0) {
             removeItemFromBasket(product);
-            renderCartItems();
-            // renderTotal();
+
         }
+        render()
     })
 
     const spanEl = document.createElement('span');
-    spanEl.setAttribute('class','quantity-text.center');
+    spanEl.setAttribute('class', 'quantity-text.center');
     spanEl.textContent = product.quantity;
 
     const addButton = document.createElement('button');
-    addButton.setAttribute('class','quantity-btn.add-btn.center');
+    addButton.setAttribute('class', 'quantity-btn.add-btn.center');
     addButton.textContent = '+';
 
-    // addButton.addEventListener('click',function(){
-    //     // addItemToBasket(product);
-     
-    //         increaseQuantity(product);
-    //         renderCartItems();
-    //         renderTotal();
-        
-    // })
-    
-    listItem.append(imageEl,itemName,removeButton,spanEl,addButton);
+    addButton.addEventListener('click', function () {
+        const storeItem = state.availableProducts.find(function (storeItem) {
+            return storeItem.id === product.id;
+        })
+        addItemToBasket(storeItem);
+
+        // increaseQuantity(product);
+        // renderCartItems();
+        // renderTotal();
+        render();
+    })
+
+    listItem.append(imageEl, itemName, removeButton, spanEl, addButton);
     return listItem;
-   
+
 }
 
-function addButtonListener(button,product){
-    button.addEventListener('click',function(){
-        if(product.quantity === 0){
+function addButtonListener(button, product) {
+    button.addEventListener('click', function () {
+        if (product.quantity === 0) {
             renderCartItems();
-        }else{
+        } else {
             addItemToBasket(product);
-        renderCartItems();
-        renderTotal();
+            // renderCartItems();
+            // renderTotal();
+            render();
         }
-        
-       
+
+
     })
 }
+function getTotal() {
+    let total = 0;
+    for (const item of state.basket) {
+        const product = state.availableProducts.find(function (product) {
+            return product.id === item.id;
+        })
+        total += product.price * item.quantity;
+    }
+    return total;
+}
+
+
 render();
+
