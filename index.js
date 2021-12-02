@@ -104,14 +104,6 @@ function increaseQuantity(item) {
 function decreaseQuantity(item) {
     item.quantity--;
 }
-function calculateTotal(price) {
-    state.currentTotal += price;
-}
-
-// function calculateTotal(product){
-//     const price = product.quantity * product.price;
-//     state.currentTotal += price;
-// }
 function render() {
     renderStoreItems();
     renderCartItems();
@@ -136,12 +128,10 @@ function renderCartItems() {
 function renderTotal() {
 
     const spanEl = document.querySelector('.total-number');
-    // spanEl.innerHTML = '';
+
     spanEl.textContent = '£' + getTotal().toFixed(2);
 }
 function createStoreItems(product) {
-
-
     const listItem = document.createElement('li');
 
     const container = document.createElement('div');
@@ -173,12 +163,16 @@ function createCartItems(product) {
     itemName.textContent = product.name;
 
     const removeButton = document.createElement('button');
-    removeButton.setAttribute('class', 'quantity-btn.remove-btn center');
+    removeButton.classList.add('quantity-btn', 'remove-btn', 'center');
+    // removeButton.setAttribute('class', 'center');
     removeButton.textContent = '-';
 
     removeButton.addEventListener('click', function () {
         decreaseQuantity(product);
-
+        const storeItem = state.availableProducts.find(function (storeItem) {
+            return storeItem.id === product.id;
+        })
+        increaseQuantity(storeItem);
         if (product.quantity === 0) {
             removeItemFromBasket(product);
 
@@ -191,7 +185,7 @@ function createCartItems(product) {
     spanEl.textContent = product.quantity;
 
     const addButton = document.createElement('button');
-    addButton.setAttribute('class', 'quantity-btn.add-btn.center');
+    addButton.classList.add('quantity-btn', 'add-btn', 'center');
     addButton.textContent = '+';
 
     addButton.addEventListener('click', function () {
@@ -199,10 +193,6 @@ function createCartItems(product) {
             return storeItem.id === product.id;
         })
         addItemToBasket(storeItem);
-
-        // increaseQuantity(product);
-        // renderCartItems();
-        // renderTotal();
         render();
     })
 
@@ -214,11 +204,9 @@ function createCartItems(product) {
 function addButtonListener(button, product) {
     button.addEventListener('click', function () {
         if (product.quantity === 0) {
-            renderCartItems();
+            render();
         } else {
             addItemToBasket(product);
-            // renderCartItems();
-            // renderTotal();
             render();
         }
 
